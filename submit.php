@@ -61,7 +61,7 @@ if($gi || $accession_no) {
 }
 
 
-echo fetch_details($sequence);
+echo fetch_accession_no($sequence);
 
 
 /**
@@ -69,9 +69,12 @@ echo fetch_details($sequence);
  */
 
 function fetch_accession_no($search_term) {
-    $url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nucleotide&id=" . $search_term;
+    $search_term = trim($search_term);
 
-    $curl = curl_init(str_replace(' ', '%20', $url));
+    $query_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nucleotide&id=" . $search_term;
+
+    // cURL Setup
+    $curl = curl_init(str_replace(' ', '%20', $query_url));
 
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HEADER, false);
@@ -84,14 +87,16 @@ function fetch_accession_no($search_term) {
 
     // Parse the XML output from NCBI
     try {
+    
         libxml_use_internal_errors(TRUE);
         $xml = new SimpleXMLElement($result);
+    
     } catch(Exception $e) {
         return false;
     }
     
     foreach($xml -> DocSum -> Item as $item) {
-        if((string) $item['Name'] === 'AccessionVersion') {
+        if((string) $item['Name'] === 'AccessionVersion' && sizeof((string)$item) > 0) {
             return (string) $item;
         }
     }
