@@ -18,7 +18,6 @@ $DATA_DIR = "/Data/Sequences/";
 /**
  * SEQUENCE PROCESSING
  * 
- * 
  * INPUTS ACCEPTED: Raw Sequence, NCBI Gene Id, NCBI Accession No.
  */
 
@@ -27,13 +26,10 @@ $sequence = trim($_POST['sequence']);
 $gi = false;
 $accession_no = false;
 
-// Check if input is Gene ID
+// Check type of input
 if(is_int($sequence)) {
     $gi = true;
-}
-
-// Check if input is Accession Number
-if(preg_match('/^[a-zA-Z]{1,2}_{0,1}(\d{5,6}|\d{8})(.\d+){0,1}$/', $sequence)) {
+} else if(preg_match('/^[a-zA-Z]{1,2}_{0,1}(\d{5,6}|\d{8})(.\d+){0,1}$/', $sequence)) {
     $accession_no = true;
 }
 
@@ -90,16 +86,22 @@ function fetch_accession_no($search_term) {
     
         libxml_use_internal_errors(TRUE);
         $xml = new SimpleXMLElement($result);
+
+        if(!isset($xml -> DocSum -> Item)) {
+            return false;
+        }
+    
+        foreach($xml -> DocSum -> Item as $item) {
+            if((string) $item['Name'] === 'AccessionVersion' && sizeof((string)$item) > 0) {
+                return (string) $item;
+            }
+        }
     
     } catch(Exception $e) {
         return false;
     }
     
-    foreach($xml -> DocSum -> Item as $item) {
-        if((string) $item['Name'] === 'AccessionVersion' && sizeof((string)$item) > 0) {
-            return (string) $item;
-        }
-    }
+    
 
     return false;
 }
