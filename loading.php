@@ -1,3 +1,14 @@
+<?php
+
+session_start();
+
+if() {
+    
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,3 +25,5 @@
 </html>
 
 <?php
+
+?>
