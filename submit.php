@@ -27,19 +27,22 @@ $DATA_DIR = "/Data/Sequences/";
 
 $sequence = trim($_POST['sequence']);
 
-$gi = false;
-$accession_no = false;
 
 // Check type of input
 if(!preg_match('/[^0-9]/', $sequence)) {
-    echo 'GI<br>';
+
     echo download_sequence_FASTA_from_NCBI($sequence);
-    $gi = true;
-} else if(preg_match('/^[a-zA-Z]{1,2}_{0,1}(\d{5,6}|\d{8})(.\d+){0,1}$/', $sequence)) {
-    echo 'Accession Version<br>';
+
+} else if(preg_match('/^[a-zA-Z]{1,6}_{0,1}\d{5,9}(.\d+){0,1}$/', $sequence)) {
+
     echo download_sequence_FASTA_from_NCBI($sequence);
-    $accession_no = true;
+
+} else {
+
 }
+
+$job_id = uniqid();
+
 
 
 
@@ -60,11 +63,11 @@ function download_sequence_FASTA_from_NCBI($search_term) {
     
     $filename = $sequence_details -> AccessionVersion . ".fasta";
 
-    $url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=" . $search_term . "&rettype=fasta" . "&retmode=text";
+    $url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=" . $search_term . "&rettype=fasta&retmode=text";
     $curl = curl_init(str_replace(' ', '%20', $url));
     
     // Check if file already exists
-    if(file_exists(dirname(__FILE__) . $DATA_DIR . $filename) && filemtime(dirname(__FILE__) . $DATA_DIR . $filename) > strtotime($sequence_details -> UpdateDate)) {
+    if(file_exists(dirname(__FILE__) . $DATA_DIR . $filename) && filemtime(dirname(__FILE__) . $DATA_DIR . $filename) > strtotime($sequence_details -> UpdateDate) && filesize(dirname(__FILE__) . $DATA_DIR . $filename) >= $sequence_details -> Length) {
         return $filename;
     }
 
@@ -138,5 +141,5 @@ function fetch_sequence_details_from_NCBI($search_term) {
 }
 
 
-$job_id = uniqid();
+
 
