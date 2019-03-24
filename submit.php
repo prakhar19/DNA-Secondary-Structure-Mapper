@@ -6,7 +6,8 @@ ignore_user_abort(true);
 session_start();
 
 if(!isset($_POST['sequence']) || empty($_POST['sequence'])) {
-    redirect('loading.php?msg=invalid_seq');
+    // Redirect
+    header('loading.php?msg=invalid_seq');
     exit();
 }
 
@@ -18,6 +19,7 @@ if(!isset($_POST['id']) || $_POST['id'] !== session_id()) {
 require('functions.php');
 
 $DATA_DIR = "/Data/Sequences/";
+$ERROR_MSG = '';
 
 /**
  * SEQUENCE PROCESSING
@@ -37,12 +39,43 @@ if(!preg_match('/[^0-9]/', $sequence)) {
 
     echo download_sequence_FASTA_from_NCBI($sequence);
 
-} else {
+} else if(!preg_match('/[^atgcnATGCN]/', $sequence)) {
+    
+
+} else if(true) {
 
 }
 
+/** NOTE: ezSQL needs PHP 7 */
+
+// Database config  file
+require_once('db-config.php');
+
+// Database handling functions
+require_once('ezSQL/ez_sql_loader.php');
+
+
+
+// Generate an ID for the job
 $job_id = uniqid();
 
+
+try {
+    $conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASSWORD);
+    // set the PDO error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // use exec() because no results are returned
+    echo "Database created successfully<br>";
+} catch(PDOException $e) {
+    echo $sql . "<br>" . $e->getMessage();
+}
+
+$conn = null;
+
+// Initialise database object and establish a connection
+$db = new ezSQL_mysqli(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_CHARSET);
+
+var_dump($db);
 
 
 
@@ -62,18 +95,17 @@ function download_sequence_FASTA_from_NCBI($search_term) {
     }
     
     $filename = $sequence_details -> AccessionVersion . ".fasta";
+    $filepath = dirname(__FILE__) . $DATA_DIR . $filename;
 
     $url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=" . $search_term . "&rettype=fasta&retmode=text";
     $curl = curl_init(str_replace(' ', '%20', $url));
     
     // Check if file already exists
-    if(file_exists(dirname(__FILE__) . $DATA_DIR . $filename) && filemtime(dirname(__FILE__) . $DATA_DIR . $filename) > strtotime($sequence_details -> UpdateDate) && filesize(dirname(__FILE__) . $DATA_DIR . $filename) >= $sequence_details -> Length) {
+    if(file_exists($filepath) && filemtime($filepath) > strtotime($sequence_details -> UpdateDate) && filesize($filepath) >= $sequence_details -> Length) {
         return $filename;
     }
 
-    $file = fopen(dirname(__FILE__) . $DATA_DIR . $filename, 'w+');
-    
-    
+    $file = fopen($filepath, 'w+');
     
     curl_setopt($curl, CURLOPT_FILE, $file);
 
@@ -83,6 +115,19 @@ function download_sequence_FASTA_from_NCBI($search_term) {
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
     
     $output = curl_exec($curl);
+
+    if($curl_error = curl_error($curl)) {
+        global $ERROR_MSG;
+        $ERROR_MSG = $curl_error;
+
+        curl_close($curl);
+
+        // Delete the file created by the filestream
+        unlink($filepath);
+
+        return false;
+    }
+
     curl_close($curl);
 
     fclose($file);
@@ -114,6 +159,15 @@ function fetch_sequence_details_from_NCBI($search_term) {
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
     $result = curl_exec($curl);
+
+    if($curl_error = curl_error($curl)) {
+        global $ERROR_MSG;
+        $ERROR_MSG = $curl_error;
+
+        curl_close($curl);
+        return false;
+    }
+
     curl_close($curl);
 
     if($result === false) {
