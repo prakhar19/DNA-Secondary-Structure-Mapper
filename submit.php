@@ -1,9 +1,17 @@
 <?php
 
 ignore_user_abort(true);
+ini_set('memory_limit', '4000M');
 //set_time_limit(0);
 
 session_start();
+
+/** 
+ * SECURITY MEASURES
+ * 
+ * - Prevention against spamming of search requests
+ * 
+ */
 
 if(!isset($_POST['sequence']) || empty($_POST['sequence'])) {
     // Redirect
@@ -16,10 +24,20 @@ if(!isset($_POST['id']) || $_POST['id'] !== session_id()) {
     exit();
 }
 
+
+/**
+ * INCLUDES & DEFINITIONS
+ */
+
+
 require('functions.php');
 
 $DATA_DIR = "/Data/Sequences/";
-$ERROR_MSG = '';
+$error_msg = '';
+
+
+
+
 
 /**
  * SEQUENCE PROCESSING
@@ -27,53 +45,35 @@ $ERROR_MSG = '';
  * INPUTS ACCEPTED: Raw Sequence, NCBI Gene Id, NCBI Accession No.
  */
 
-$sequence = trim($_POST['sequence']);
+$input_sequence = trim($_POST['sequence']);
 
 
-// Check type of input
-if(!preg_match('/[^0-9]/', $sequence)) {
-
-    echo download_sequence_FASTA_from_NCBI($sequence);
-
-} else if(preg_match('/^[a-zA-Z]{1,6}_{0,1}\d{5,9}(.\d+){0,1}$/', $sequence)) {
-
-    echo download_sequence_FASTA_from_NCBI($sequence);
-
-} else if(!preg_match('/[^atgcnATGCN]/', $sequence)) {
+if(!preg_match('/[^0-9]/', $input_sequence)) {
     
+    // Gene ID
+    $sequence_details = fetch_sequence_details_from_NCBI($search_term);
+    $sequence = download_sequence_FASTA_from_NCBI($input_sequence, $sequence_details);
+
+} else if(preg_match('/^[a-zA-Z]{1,6}_{0,1}\d{5,9}(.\d+){0,1}$/', $input_sequence)) {
+    
+    // Accession number
+    $sequence_details = fetch_sequence_details_from_NCBI($search_term);
+    $sequence = download_sequence_FASTA_from_NCBI($input_sequence, $sequence_details);
+
+} else if(!preg_match('/[^atgcnATGCN]/', $input_sequence)) {
+    
+    // Plain sequence
+    $sequence = $input_sequence;
 
 } else if(true) {
 
 }
 
-/** NOTE: ezSQL needs PHP 7 */
-
-// Database config  file
-require_once('db-config.php');
-
-// Database handling functions
-require_once('ezSQL/ez_sql_loader.php');
 
 
+$db = database_init();
 
-// Generate an ID for the job
-$job_id = uniqid();
-
-
-try {
-    $conn = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASSWORD);
-    // set the PDO error mode to exception
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // use exec() because no results are returned
-    echo "Database created successfully<br>";
-} catch(PDOException $e) {
-    echo $sql . "<br>" . $e->getMessage();
-}
-
-$conn = null;
-
-// Initialise database object and establish a connection
-$db = new ezSQL_mysqli(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_CHARSET);
+$db -> query("INSERT INTO searches (sequence, creation_date, status) VALUES ($sequence, NOW(), 'Started')");
 
 var_dump($db);
 
@@ -81,118 +81,21 @@ var_dump($db);
 
 
 /**
- * Checks if the sequence is available in the DATA_DIR folder, else downloads it.
+ * FUNCTIONS
  */
 
-function download_sequence_FASTA_from_NCBI($search_term) {
-    global $DATA_DIR;
+function read_sequence_from_file($filepath) {
+    $file = fopen($filepath, 'r');
 
-    $search_term = trim($search_term);
     
-    $sequence_details = fetch_sequence_details_from_NCBI($search_term);
-    if($sequence_details === false) {
-        return false;
-    }
-    
-    $filename = $sequence_details -> AccessionVersion . ".fasta";
-    $filepath = dirname(__FILE__) . $DATA_DIR . $filename;
-
-    $url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=" . $search_term . "&rettype=fasta&retmode=text";
-    $curl = curl_init(str_replace(' ', '%20', $url));
-    
-    // Check if file already exists
-    if(file_exists($filepath) && filemtime($filepath) > strtotime($sequence_details -> UpdateDate) && filesize($filepath) >= $sequence_details -> Length) {
-        return $filename;
-    }
-
-    $file = fopen($filepath, 'w+');
-    
-    curl_setopt($curl, CURLOPT_FILE, $file);
-
-    curl_setopt($curl, CURLOPT_HEADER, false);
-    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-    
-    $output = curl_exec($curl);
-
-    if($curl_error = curl_error($curl)) {
-        global $ERROR_MSG;
-        $ERROR_MSG = $curl_error;
-
-        curl_close($curl);
-
-        // Delete the file created by the filestream
-        unlink($filepath);
-
-        return false;
-    }
-
-    curl_close($curl);
 
     fclose($file);
-
-    if($output === true) {
-        return $filename;
-    }
-
-    return false;
 }
 
+function read_sequence($sequence) {
 
-/**
- * Fetches details of the DNA sequence from the NCBI website
- */
-
-function fetch_sequence_details_from_NCBI($search_term) {
-    $search_term = trim($search_term);
-
-    $query_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nucleotide&id=" . $search_term;
-
-    // cURL Setup
-    $curl = curl_init(str_replace(' ', '%20', $query_url));
-
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HEADER, false);
-    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-
-    $result = curl_exec($curl);
-
-    if($curl_error = curl_error($curl)) {
-        global $ERROR_MSG;
-        $ERROR_MSG = $curl_error;
-
-        curl_close($curl);
-        return false;
-    }
-
-    curl_close($curl);
-
-    if($result === false) {
-        return false;
-    }
-    
-    // Parse the XML output from NCBI
-    $output = array();
-    try {
-        libxml_use_internal_errors(TRUE);
-        $xml = new SimpleXMLElement($result);
-        
-        if(!isset($xml -> DocSum -> Item)) {
-            return false;
-        }
-    
-        foreach($xml -> DocSum -> Item as $item) {
-            $output[(string)$item['Name']] = (string)$item;
-        }
-    } catch(Exception $e) {
-        return false;
-    }
-    
-    return (object)$output;
 }
+
 
 
 

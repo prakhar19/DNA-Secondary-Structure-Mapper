@@ -1,0 +1,16 @@
+/nbproject/private/
+/nbproject/
+~
+~*.*
+*.lock
+clover.xml
+*.sqlite
+*.sqlite3
+vendor
+build/logs/clover.xml
+.vscode/settings.json
+*.crt
+*.csr
+*.key
+test.php
+build
