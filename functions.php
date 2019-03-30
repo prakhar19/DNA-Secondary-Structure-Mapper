@@ -41,6 +41,7 @@ function database_init() {
 
 function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = null) {
     global $DATA_DIR;
+    global $error_msg;
 
     $search_term = trim($search_term);
     
@@ -63,6 +64,11 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
         return $filename;
     }
 
+    if($sequence_details -> Length > 1000000000) {
+        $error_msg = "Sequence to be downloaded is greater than 1Gbp (1,000,000,0000 base pairs).";
+        return false;
+    }
+
     $file = fopen($filepath, 'w+');
     
     curl_setopt($curl, CURLOPT_FILE, $file);
@@ -75,7 +81,6 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
     $output = curl_exec($curl);
 
     if($curl_error = curl_error($curl)) {
-        global $error_msg;
         $error_msg = $curl_error;
 
         curl_close($curl);
@@ -103,6 +108,8 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
  */
 
 function fetch_sequence_details_from_NCBI($search_term) {
+    global $error_msg;
+
     $search_term = trim($search_term);
 
     $query_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nucleotide&id=" . $search_term;
@@ -119,7 +126,6 @@ function fetch_sequence_details_from_NCBI($search_term) {
     $result = curl_exec($curl);
 
     if($curl_error = curl_error($curl)) {
-        global $error_msg;
         $error_msg = $curl_error;
 
         curl_close($curl);
