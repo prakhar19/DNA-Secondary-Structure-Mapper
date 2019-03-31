@@ -62,7 +62,7 @@ function fetch_sequence_details_from_NCBI($search_term) {
     $result = curl_exec($curl);
 
     if($curl_error = curl_error($curl)) {
-        $error_msg = $curl_error;
+        //$curl_error;
 
         curl_close($curl);
         return false;
@@ -125,7 +125,7 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
     }
 
     if($sequence_details -> Length > MAX_DOWNLOAD_SIZE) {
-        $error_msg = "Sequence to be downloaded is greater than " . MAX_DOWNLOAD_SIZE_STRING . ".";
+        $error_msg = "download_size";
         return false;
     }
 
@@ -141,7 +141,7 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
     $output = curl_exec($curl);
 
     if($curl_error = curl_error($curl)) {
-        $error_msg = $curl_error;
+        //$curl_error;
 
         curl_close($curl);
 

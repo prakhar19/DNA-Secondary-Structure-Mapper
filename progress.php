@@ -17,14 +17,29 @@ require_once('config.php');
 require_once('functions.php');
 
 
-
-
 $SEARCH_ID = null;
+$error_msg = '';
+
+
+if(isset($_GET['error'])) {
+    switch($_GET['error']) {
+        case 'info_fetch' :
+            $error_msg = "Could not fetch details of the sequence from NCBI.";
+            break;
+
+        case 'download' :
+            $error_msg = "Could not download the sequence from NCBI.";
+            break;
+
+        case 'download_size' :
+            $error_msg = "Sequence to be downloaded is greater than " . MAX_DOWNLOAD_SIZE_STRING . ".";
+            break;
+    }
+}
+echo $error_msg;
 
 if(isset($_GET['id'])) {
     $SEARCH_ID = $_GET['id'];
-} else if(isset($_GET['message'])) {
-    
 } else {
     die("Invalid Request");
 }
