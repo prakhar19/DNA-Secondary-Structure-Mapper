@@ -40,6 +40,62 @@ function database_init() {
 
 
 /**
+ * Fetches details of the DNA sequence from the NCBI website
+ */
+
+function fetch_sequence_details_from_NCBI($search_term) {
+    global $error_msg;
+
+    $search_term = trim($search_term);
+
+    $query_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nucleotide&id=" . $search_term;
+
+    // cURL Setup
+    $curl = curl_init(str_replace(' ', '%20', $query_url));
+
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HEADER, false);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+    $result = curl_exec($curl);
+
+    if($curl_error = curl_error($curl)) {
+        $error_msg = $curl_error;
+
+        curl_close($curl);
+        return false;
+    }
+
+    curl_close($curl);
+
+    if($result === false) {
+        return false;
+    }
+    
+    // Parse the XML output from NCBI
+    $output = array();
+    try {
+        libxml_use_internal_errors(TRUE);
+        $xml = new SimpleXMLElement($result);
+        
+        if(!isset($xml -> DocSum -> Item)) {
+            return false;
+        }
+    
+        foreach($xml -> DocSum -> Item as $item) {
+            $output[(string)$item['Name']] = (string)$item;
+        }
+    } catch(Exception $e) {
+        return false;
+    }
+    
+    return (object)$output;
+}
+
+
+/**
  * Checks if the sequence is available in the DATA_DIR folder, else downloads it.
  */
 
@@ -106,58 +162,3 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
     return false;
 }
 
-
-/**
- * Fetches details of the DNA sequence from the NCBI website
- */
-
-function fetch_sequence_details_from_NCBI($search_term) {
-    global $error_msg;
-
-    $search_term = trim($search_term);
-
-    $query_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=nucleotide&id=" . $search_term;
-
-    // cURL Setup
-    $curl = curl_init(str_replace(' ', '%20', $query_url));
-
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HEADER, false);
-    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-
-    $result = curl_exec($curl);
-
-    if($curl_error = curl_error($curl)) {
-        $error_msg = $curl_error;
-
-        curl_close($curl);
-        return false;
-    }
-
-    curl_close($curl);
-
-    if($result === false) {
-        return false;
-    }
-    
-    // Parse the XML output from NCBI
-    $output = array();
-    try {
-        libxml_use_internal_errors(TRUE);
-        $xml = new SimpleXMLElement($result);
-        
-        if(!isset($xml -> DocSum -> Item)) {
-            return false;
-        }
-    
-        foreach($xml -> DocSum -> Item as $item) {
-            $output[(string)$item['Name']] = (string)$item;
-        }
-    } catch(Exception $e) {
-        return false;
-    }
-    
-    return (object)$output;
-}
