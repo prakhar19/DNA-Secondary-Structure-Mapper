@@ -5,7 +5,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-// ** MySQL settings ** //
+/**
+ * 
+ */
+
+ /** Maximum base pair size which can be downloaded from NCBI sequences */
+define( 'MAX_DOWNLOAD_SIZE', 1000000000 );
+define( 'MAX_DOWNLOAD_SIZE_STRING', '1Gbp (1,000,000,0000 base pairs)' );
+
+/** Maximum number of base pairs which can be searched */
+define( 'MAX_SEARCH_SIZE', 1000000000 );
+define( 'MAX_SEARCH_SIZE_STRING', '1Gbp (1,000,000,0000 base pairs)' );
+
+
+/**
+ * MySQL settings
+ */
 
 /** The name of the database */
 define( 'DB_NAME', 'structure_finder_db' );

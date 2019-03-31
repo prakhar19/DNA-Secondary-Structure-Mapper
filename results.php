@@ -1,3 +1,24 @@
+<?php
+
+session_start();
+
+/**
+ * VERIFICATION
+ */
+
+
+
+/**
+ * END VERIFICATION
+ */
+
+require_once('config.php');
+require_once('functions.php');
+
+
+$db = database_init();
+?>
+
 <!DOCTYPE html>
 <html>
 <head>

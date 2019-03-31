@@ -2,6 +2,23 @@
 
 session_start();
 
+/**
+ * VERIFICATION
+ */
+
+
+
+/**
+ * END VERIFICATION
+ */
+
+
+require_once('config.php');
+require_once('functions.php');
+
+
+
+
 $SEARCH_ID = null;
 
 if(isset($_GET['id'])) {
@@ -14,24 +31,7 @@ if(isset($_GET['id'])) {
 
 
 
-
-/**
- * DATABASE SETUP
- */
-
-// Database config  file
-require_once('db-config.php');
-
-/** NOTE: ezSQL needs PHP 7 */
-require_once('ezSQL/ez_sql_loader.php');
-
-
-// Initialise database object and establish a connection
-$db = new ezSQL_mysqli(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_CHARSET);
-
-/**
- * END DATABASE SETUP
- */
+$db = database_init();
 
 
 $results = $db -> get_row("SELECT * FROM searches WHERE id = $SEARCH_ID");

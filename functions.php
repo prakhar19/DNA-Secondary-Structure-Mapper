@@ -12,6 +12,10 @@ function read_sequence($sequence) {
 
 }
 
+function read_FASTA($sequence) {
+    
+}
+
 
 
 /**
@@ -19,8 +23,8 @@ function read_sequence($sequence) {
  */
 
 function database_init() {
-    // Database config  file
-    require_once('db-config.php');
+    // Configuration  file
+    require_once('config.php');
 
     // NOTE: ezSQL needs PHP 7
     require_once('ezSQL/ez_sql_loader.php');
@@ -64,8 +68,8 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
         return $filename;
     }
 
-    if($sequence_details -> Length > 1000000000) {
-        $error_msg = "Sequence to be downloaded is greater than 1Gbp (1,000,000,0000 base pairs).";
+    if($sequence_details -> Length > MAX_DOWNLOAD_SIZE) {
+        $error_msg = "Sequence to be downloaded is greater than " . MAX_DOWNLOAD_SIZE_STRING . ".";
         return false;
     }
 
