@@ -23,6 +23,14 @@ $error_msg = '';
 
 if(isset($_GET['error'])) {
     switch($_GET['error']) {
+        case 'invalid_seq' :
+            $error_msg = "Enter a valid sequence, NCBI Gene Id or NCBI Accession No.";
+            break;
+
+        case 'invalid_request' :
+            $error_msg = "Invalid Request";
+            break;
+
         case 'info_fetch' :
             $error_msg = "Could not fetch details of the sequence from NCBI.";
             break;

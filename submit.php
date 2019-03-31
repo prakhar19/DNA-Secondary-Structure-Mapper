@@ -11,14 +11,13 @@ session_start();
  */
 
 if(!isset($_POST['sequence']) || empty($_POST['sequence'])) {
-    // Redirect
     header('Location: progress?error=invalid_seq');
-    exit();
+    die();
 }
 
 if(!isset($_POST['id']) || $_POST['id'] !== session_id()) {
     redirect('Location: progress?error=invalid_request');
-    exit();
+    die();
 }
 
 /**
