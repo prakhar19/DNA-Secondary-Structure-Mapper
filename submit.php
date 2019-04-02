@@ -86,10 +86,10 @@ if(!$success) {
 }
 
 $id = $db -> getInsertId();
+echo $id;
 
 
-
-var_dump($db);
+//var_dump($db);
 
 
 //** Redirect user to the Progress page */
@@ -105,7 +105,7 @@ if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
             $error_msg = "Could not fetch details of the sequence from NCBI.";
         }
 
-        log_error($id, $error_msg);
+        log_error_and_die($id, $error_msg);
     }
     
     //** Download sequence from NCBI and error-checking */
@@ -115,7 +115,7 @@ if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
             $error_msg = "Could not download the sequence from NCBI.";
         }
 
-        log_error($id, $error_msg);
+        log_error_and_die($id, $error_msg);
     }
 
     $filepath = dirname(__FILE__) . $DATA_DIR . $sequence;

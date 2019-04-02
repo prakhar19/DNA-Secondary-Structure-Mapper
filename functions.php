@@ -23,9 +23,11 @@ function read_FASTA($sequence) {
  */
 
 
-function log_error($id, $msg) {
+function log_error_and_die($id, $msg) {
     global $db;
-    $success = $db -> query("UPDATE searches SET status = 'Error' AND output = '$msg' WHERE id = $id");
+    $success = $db -> query("UPDATE searches SET status = 'Error', output = '$msg' WHERE id = $id");
+
+    die();
 }
 
 
