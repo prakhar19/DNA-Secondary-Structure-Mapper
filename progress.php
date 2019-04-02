@@ -13,12 +13,8 @@ session_start();
  */
 
 
-require_once('config.php');
-require_once('functions.php');
+require_once('init.php');
 
-
-$SEARCH_ID = null;
-$error_msg = '';
 
 
 if(isset($_GET['error'])) {
@@ -31,36 +27,39 @@ if(isset($_GET['error'])) {
             $error_msg = "Invalid Request";
             break;
 
-        case 'info_fetch' :
-            $error_msg = "Could not fetch details of the sequence from NCBI.";
-            break;
-
-        case 'download' :
-            $error_msg = "Could not download the sequence from NCBI.";
-            break;
-
         case 'download_size' :
             $error_msg = "Sequence to be downloaded is greater than " . MAX_DOWNLOAD_SIZE_STRING . ".";
             break;
-    }
+    } ?>
+    <div class="error-box"><?php echo $error_msg; ?></div>
+    <?php
 }
-echo $error_msg;
 
-if(isset($_GET['id'])) {
-    $SEARCH_ID = $_GET['id'];
-} else {
+
+if(empty($_GET['id'])) {
     die("Invalid Request");
 }
 
+$id = $_GET['id'];
 
-
-$db = database_init();
 
 
 $results = $db -> get_row("SELECT * FROM searches WHERE id = $SEARCH_ID");
 
+$status = strtolower($results -> status);
+switch($status) {
+    case 'finished' :
 
+        break;
 
+    case 'created' :
+
+        break;
+    
+    case 'error' :
+
+        break;
+}
 
 ?>
 

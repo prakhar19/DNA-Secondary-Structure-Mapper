@@ -6,17 +6,25 @@ session_start();
  * VERIFICATION
  */
 
+if(empty($_GET['id'])) {
 
+    
+}
 
 /**
  * END VERIFICATION
  */
 
-require_once('config.php');
-require_once('functions.php');
+require_once('init.php');
+
+$id = $_GET['id'];
 
 
-$db = database_init();
+
+
+
+$output = $db -> get_row("SELECT * FROM searches WHERE id = $id");
+
 ?>
 
 <!DOCTYPE html>

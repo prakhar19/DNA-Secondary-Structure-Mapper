@@ -22,20 +22,10 @@ function read_FASTA($sequence) {
  * DATABASE SETUP
  */
 
-function database_init() {
-    // Configuration  file
-    require_once('config.php');
 
-    // NOTE: ezSQL needs PHP 7
-    require_once('ezSQL/ez_sql_loader.php');
-
-    // Generate an ID for the job
-    $job_id = uniqid();
-
-    // Initialise database object and establish a connection
-    $db = new ezSQL_mysqli(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_CHARSET);
-
-    return $db;
+function log_error($id, $msg) {
+    global $db;
+    $success = $db -> query("UPDATE searches SET status = 'Error' AND output = '$msg' WHERE id = $id");
 }
 
 
@@ -125,7 +115,7 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
     }
 
     if($sequence_details -> Length > MAX_DOWNLOAD_SIZE) {
-        $error_msg = "download_size";
+        $error_msg = "Sequence to be downloaded is greater than " . MAX_DOWNLOAD_SIZE_STRING . ".";
         return false;
     }
 

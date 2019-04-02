@@ -10,12 +10,12 @@ session_start();
  * 
  */
 
-if(!isset($_POST['sequence']) || empty($_POST['sequence'])) {
+if(empty($_POST['sequence'])) {
     header('Location: progress?error=invalid_seq');
     die();
 }
 
-if(!isset($_POST['id']) || $_POST['id'] !== session_id()) {
+if(empty($_POST['id']) || $_POST['id'] !== session_id()) {
     redirect('Location: progress?error=invalid_request');
     die();
 }
@@ -33,18 +33,14 @@ ignore_user_abort(true);
 ini_set('memory_limit', '4000M');
 //set_time_limit(0);
 
-require_once('config.php');
-require_once('functions.php');
+require_once('init.php');
 require_once('sequence-search.php');
 
-$DATA_DIR = "/Data/Sequences/";
-$error_msg = '';
+
 
 $input_sequence = '';
 $sequence = '';
 $sequence_format = '';
-
-$db = null;
 
 $id = null;
 
@@ -84,8 +80,6 @@ if(!preg_match('/[^0-9]/', $input_sequence)) {
 }
 
 
-$db = database_init();
-
 $success = $db -> query("INSERT INTO searches (input_sequence, sequence_format, creation_time, status) VALUES ('$input_sequence', '$sequence_format', NOW(), 'Created')");
 if(!$success) {
     die("Database error");
@@ -95,40 +89,39 @@ $id = $db -> getInsertId();
 
 
 
-//var_dump($db);
+var_dump($db);
 
 
 //** Redirect user to the Progress page */
 
-//location("progress?id=$id");
+//header("Location: progress?id=$id");
 
 
 if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
 
     //** Check if sequence details were successfully fetched from NCBI */
     if(!$sequence_details) {
-        if($error_msg == '') {
-            $error_msg = "info_fetch";
+        if(empty($error_msg)) {
+            $error_msg = "Could not fetch details of the sequence from NCBI.";
         }
-        header("Location: progress?id=" . $id . "&error=" . $error_msg);
-        die();
+
+        log_error($id, $error_msg);
     }
     
-    //** Download sequence from NCBI and error-checking*/
+    //** Download sequence from NCBI and error-checking */
     $sequence = download_sequence_FASTA_from_NCBI($input_sequence, $sequence_details);
     if(!$sequence) {
-        if($error_msg == '') {
-            $error_msg = "download";
+        if(empty($error_msg)) {
+            $error_msg = "Could not download the sequence from NCBI.";
         }
-        header("Location: progress?id=" . $id . "&error=" . $error_msg);
-        die();
+
+        log_error($id, $error_msg);
     }
 
-    
     $filepath = dirname(__FILE__) . $DATA_DIR . $sequence;
     
-    $file = fopen($filepath, 'r');
-
+    $file = file_get_contents($filepath);
+    
 
 } else {
     echo search_GQuadruplex($sequence);
