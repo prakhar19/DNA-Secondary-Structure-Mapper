@@ -12,8 +12,18 @@ function read_sequence($sequence) {
 
 }
 
-function read_FASTA($sequence) {
-    
+function read_fasta_from_file($file_name) {
+    $filepath = dirname(__FILE__) . $DATA_DIR . $file_name;
+    $file = fopen($filepath, 'r');
+
+    while(!feof($file)) {
+        $line = trim(fgets($file));
+
+    }
+
+    fclose($file);
+
+
 }
 
 

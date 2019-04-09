@@ -26,10 +26,6 @@ if(isset($_GET['error'])) {
         case 'invalid_request' :
             $error_msg = "Invalid Request";
             break;
-
-        case 'download_size' :
-            $error_msg = "Sequence to be downloaded is greater than " . MAX_DOWNLOAD_SIZE_STRING . ".";
-            break;
     } ?>
     <div class="error-box"><?php echo $error_msg; ?></div>
     <?php

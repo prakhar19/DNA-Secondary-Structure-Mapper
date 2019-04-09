@@ -10,12 +10,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 
  /** Maximum base pair size which can be downloaded from NCBI sequences */
-define( 'MAX_DOWNLOAD_SIZE', 1000000000 );
-define( 'MAX_DOWNLOAD_SIZE_STRING', '1Gbp (1,000,000,0000 base pairs)' );
+define( 'MAX_DOWNLOAD_SIZE', 500000000 );
+define( 'MAX_DOWNLOAD_SIZE_STRING', '500 Mbp (500,000,0000 base pairs)' );
 
 /** Maximum number of base pairs which can be searched */
-define( 'MAX_SEARCH_SIZE', 1000000000 );
-define( 'MAX_SEARCH_SIZE_STRING', '1 Gbp (1,000,000,0000 base pairs)' );
+define( 'MAX_SEARCH_SIZE', 500000000 );
+define( 'MAX_SEARCH_SIZE_STRING', '500 Mbp (500,000,0000 base pairs)' );
 
 
 /**

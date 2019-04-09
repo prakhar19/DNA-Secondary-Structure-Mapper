@@ -1,5 +1,8 @@
 <?php
 
+read_fasta_from_file("Homo_sapiens.GRCh38.dna.chromosome.1.fa");
+
+exit();
 session_start();
 
 
@@ -30,7 +33,7 @@ if(empty($_POST['id']) || $_POST['id'] !== session_id()) {
  */
 
 ignore_user_abort(true);
-ini_set('memory_limit', '4000M');
+ini_set('memory_limit', '1000M');
 //set_time_limit(0);
 
 require_once('init.php');
@@ -75,7 +78,7 @@ if(!preg_match('/[^0-9]/', $input_sequence)) {
 
 } else if(true) {
 
-    //
+    // 
 
 }
 
