@@ -32,13 +32,40 @@ $output = $db -> get_row("SELECT * FROM searches WHERE id = $id");
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Page Title</title>
+    <title>Results</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css">
     <script src="main.js"></script>
+
+    <!-- Integrative Genomics Viewer -->
+    <script src="https://cdn.jsdelivr.net/npm/igv@2.2.9/dist/igv.min.js"></script>
 </head>
 <body>
+    <div id="genome-viewer">
 
+    </div>
+    <script>
+        var igvDiv = document.getElementById('genome-viewer');
+        var options = {
+            reference : {
+                "fastaURL" : "/bioinformatics<?php echo $DATA_DIR . $output -> input_sequence . ".fasta";?>",
+                "indexed" : false
+            },
+            locus : "",
+            /*tracks : [{
+                "name" : "HG00103",
+                "url" : "<?php echo $DATA_DIR . $output -> input_sequence . ".fasta";?>",
+                "indexURL" : "",
+                "format" : "fasta"
+            }]*/
+        };
+
+        igv.createBrowser(igvDiv, options).then(
+            function(browser) {
+                console.log("Created");
+            }
+        );
+    </script>
 </body>
 </html>
 

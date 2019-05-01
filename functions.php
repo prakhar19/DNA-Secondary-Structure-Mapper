@@ -18,7 +18,7 @@ function read_fasta_from_file($file_name) {
 
     while(!feof($file)) {
         $line = trim(fgets($file));
-
+        
     }
 
     fclose($file);

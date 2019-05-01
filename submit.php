@@ -1,8 +1,5 @@
 <?php
 
-read_fasta_from_file("Homo_sapiens.GRCh38.dna.chromosome.1.fa");
-
-exit();
 session_start();
 
 
@@ -124,10 +121,11 @@ if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
     $filepath = dirname(__FILE__) . $DATA_DIR . $sequence;
     
     $file = file_get_contents($filepath);
-    
+    var_dump($file);
+    var_dump(search_GQuadruplex($file));
 
 } else {
-    echo search_GQuadruplex($sequence);
+    var_dump(search_GQuadruplex($sequence));
 }
 
 
