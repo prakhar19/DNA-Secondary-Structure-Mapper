@@ -11,15 +11,15 @@ echo(session_id() . " ");
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Secondary Structure Identifier</title>
+    <title>Sequence Searcher</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css">
     <script src="main.js"></script>
+
 </head>
 <body>
-    <header>
-
-    </header>
+    <!-- Top Header -->
+    <?php require_once('inc/header.php'); ?>
 
     <div id="main">
         <form action="submit" method="post">
