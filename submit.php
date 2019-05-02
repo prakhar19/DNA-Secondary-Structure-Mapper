@@ -1,8 +1,5 @@
 <?php
 
-session_start();
-
-
 /** 
  * VERIFICATION
  * 
@@ -15,10 +12,10 @@ if(empty($_POST['sequence'])) {
     die();
 }
 
-if(empty($_POST['id']) || $_POST['id'] !== session_id()) {
-    redirect('Location: progress?error=invalid_request');
-    die();
-}
+// if(empty($_POST['id']) || $_POST['id'] !== session_id()) {
+//     header('Location: progress?error=invalid_request');
+//     die();
+// } 
 
 /**
  * END VERIFICATION
@@ -31,7 +28,7 @@ if(empty($_POST['id']) || $_POST['id'] !== session_id()) {
 
 ignore_user_abort(true);
 ini_set('memory_limit', '1000M');
-//set_time_limit(0);
+set_time_limit(0);
 
 require_once('init.php');
 require_once('sequence-search.php');
@@ -94,7 +91,7 @@ echo $id;
 
 //** Redirect user to the Progress page */
 
-//header("Location: progress?id=$id");
+header("Location: progress?id=$id");
 
 
 if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
@@ -121,15 +118,22 @@ if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
     $filepath = dirname(__FILE__) . $DATA_DIR . $sequence;
     
     $file = file_get_contents($filepath);
-    var_dump($file);
-    var_dump(search_GQuadruplex($file));
+    
+    // var_dump($file);
+    
+    $output = search_GQuadruplex($file);
 
 } else {
-    var_dump(search_GQuadruplex($sequence));
+    $output = search_GQuadruplex($sequence);
 }
 
 
+$imploded_output = implode(',', $output[1]);
+var_dump($imploded_output);
 
+$success = $db -> query("UPDATE searches SET finished_time = NOW(), output = '$imploded_output' WHERE id = $id");
+
+echo $success . 'sdsd';
 
 $success = $db -> query("UPDATE searches SET status = 'Finished' WHERE id = $id");
 

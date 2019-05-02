@@ -35,6 +35,7 @@ $output = $db -> get_row("SELECT * FROM searches WHERE id = $id");
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css">
     <script src="main.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
     <!-- Integrative Genomics Viewer (IGV) -->
     <script src="https://cdn.jsdelivr.net/npm/igv@2.2.9/dist/igv.min.js"></script>
@@ -43,9 +44,12 @@ $output = $db -> get_row("SELECT * FROM searches WHERE id = $id");
     <!-- Top Header -->
     <?php require_once('inc/header.php'); ?>
 
-    <div id="genome-viewer">
+    <div id="main">
+        <div id="genome-viewer">
 
+        </div>
     </div>
+    
     <script>
         var igvDiv = document.getElementById('genome-viewer');
         var options = {

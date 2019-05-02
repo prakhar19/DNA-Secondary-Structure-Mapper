@@ -1,6 +1,6 @@
 <header>
     <div id="branding">
-        <img id="branding-logo" src="./logo.png">
-        <div id="branding-text">DNA Secondary Sequence Searcher</div>
+        <a href="./"><img id="branding-logo" src="./logo.png"></a>
+        <h1 id="branding-text">DNA Secondary Sequence Searcher</h1>
     </div>
 </header>
