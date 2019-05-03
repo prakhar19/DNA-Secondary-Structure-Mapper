@@ -8,6 +8,7 @@ require_once('ezSQL/ez_sql_loader.php');
 
 
 $DATA_DIR = "/Data/Sequences/";
+$RESULT_DIR = "/Data/Results/";
 
 $id = null;
 $error_msg = '';

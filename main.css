@@ -32,8 +32,8 @@ header {
 }
 
 #branding {
-    width: 100%;
-    padding: 30px 30px 20px 30px;
+    width: 98%;
+    padding: 30px 0 20px 2%;
     border-bottom: solid 2px #666;
 }
 
@@ -71,7 +71,59 @@ header {
 }
 
 
+/* Progress */
 
+#progress-box {
+    margin-bottom: 20px;
+}
+
+#progress-box table {
+    width: 100%;
+    max-width: 500px;
+}
+
+#progress-box table tr{
+    height: 30px;
+}
+
+
+/* Results */
+
+#found-sequence-display {
+    width: 97%;
+    max-height: 340px;
+    padding: 15px 1.5%;
+    background-color: #fff;
+    overflow-y: scroll;
+}
+
+#found-sequence-display-legend {
+    font-size: 13px;
+    width: 100%;
+    text-align: right;
+    margin: 10px 0;
+}
+
+.individual-sequence {
+    font-size: 16px;
+    text-align: center;
+    display: inline-block;
+    margin: 10px 5px;
+}
+
+.sequence-length {
+    margin-right: 5px;
+    color: #000;
+    font-size: 11px;
+}
+
+.position_start {
+    color: #00b000;
+}
+
+.position_end {
+    color: #ee0000;
+}
 
 /* EXTRA */
 
@@ -87,6 +139,24 @@ header {
     font-size: 11px;
 }
 
+.warn {
+    border: solid 2px #ff0000;
+}
 
 
+.A {
+    color: #f2c409;
+}
 
+.T {
+    color: #209cee;
+}
+
+.G {
+    color: #bbb;
+    font-size: 12px;
+}
+
+.C {
+    color: #ce372b;
+}

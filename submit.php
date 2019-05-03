@@ -51,7 +51,6 @@ $id = null;
 
 $input_sequence = trim($_POST['sequence']);
 
-
 if(!preg_match('/[^0-9]/', $input_sequence)) {
     
     // Gene ID
@@ -83,8 +82,7 @@ if(!$success) {
 }
 
 $id = $db -> getInsertId();
-echo $id;
-
+//echo $id;
 
 //var_dump($db);
 
@@ -92,9 +90,10 @@ echo $id;
 //** Redirect user to the Progress page */
 
 header("Location: progress?id=$id");
-
+flush();
 
 if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
+    $success = $db -> query("UPDATE searches SET status = 'Downloading' WHERE id = $id");
 
     //** Check if sequence details were successfully fetched from NCBI */
     if(!$sequence_details) {
@@ -121,21 +120,37 @@ if($sequence_format === 'accession-no' || $sequence_format === 'gene-id') {
     
     // var_dump($file);
     
+    $success = $db -> query("UPDATE searches SET status = 'Searching' WHERE id = $id");
+
     $output = search_GQuadruplex($file);
 
 } else {
+    $success = $db -> query("UPDATE searches SET status = 'Searching' WHERE id = $id");
     $output = search_GQuadruplex($sequence);
 }
 
+//var_dump($output);
 
-$imploded_output = implode(',', $output[1]);
-var_dump($imploded_output);
 
-$success = $db -> query("UPDATE searches SET finished_time = NOW(), output = '$imploded_output' WHERE id = $id");
+$json_output = json_encode($output[1]);
 
-echo $success . 'sdsd';
+$success = $db -> query("UPDATE searches SET finished_time = NOW(), output = '$json_output', status = 'Finished' WHERE id = $id");
 
-$success = $db -> query("UPDATE searches SET status = 'Finished' WHERE id = $id");
 
+
+$filename = $sequence_details -> AccessionVersion . ".bed";
+$filepath = dirname(__FILE__) . $RESULT_DIR . $filename;
+
+$temp = "";
+
+foreach ($output[1] as $seq) {
+    $temp .= $sequence_details -> AccessionVersion . " " . $seq[1] . " " . ($seq[1] + strlen($seq[0])) . "\n";
+}
+
+$file = fopen($filepath, 'w+');
+
+fwrite($file, $temp);
+
+fclose($file);
 
 

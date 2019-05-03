@@ -28,11 +28,6 @@ function read_fasta_from_file($file_name) {
 
 
 
-/**
- * DATABASE SETUP
- */
-
-
 function log_error_and_die($id, $msg) {
     global $db;
     $success = $db -> query("UPDATE searches SET status = 'Error', output = '$msg' WHERE id = $id");
@@ -164,3 +159,7 @@ function download_sequence_FASTA_from_NCBI($search_term, $sequence_details = nul
     return false;
 }
 
+
+function create_bed_file() {
+    
+}
